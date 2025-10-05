@@ -5,10 +5,10 @@ import api from '../../services/api';
 
 // Import dashboard components (we'll create these)
 import DashboardSidebar from '../../components/dashboard/DashboardSidebar';
-import UserProfile from './user/UserProfile';
-import UserWishlist from './user/UserWishlist';
-import UserPropertyBought from './user/UserPropertyBought';
-import UserReviews from './user/UserReviews';
+import UserProfile from './User/UserProfile';
+import UserWishlist from './User/UserWishlist';
+import UserPropertyBought from './User/UserPropertyBought';
+import UserReviews from './User/UserReviews';
 
 const Dashboard = () => {
   const { user } = useAuth();
