@@ -1,12 +1,13 @@
+## 🚀 Live Demo
+
+- **Live Site**: https://b11a12elite.netlify.app/
+- **Admin Username**: test@test.com
+- **Admin Password**: test1234
+
+
 # Elite Properties - Real Estate Platform
 
 A comprehensive real estate platform built with the MERN stack, enabling users to buy, sell, and manage properties with role-based access control.
-
-## 🚀 Live Demo
-
-- **Live Site**: 
-- **Admin Username**: test@test.com
-- **Admin Password**: test1234
 
 ## ✨ Key Features
 
