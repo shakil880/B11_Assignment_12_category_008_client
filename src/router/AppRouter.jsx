@@ -10,8 +10,10 @@ import Login from '../pages/Login';
 import Register from '../pages/Register';
 import AllProperties from '../pages/AllProperties';
 import PropertyDetails from '../pages/PropertyDetails';
+import AddPropertyPublic from '../pages/AddPropertyPublic';
 import NotFound from '../pages/NotFound';
 import Dashboard from '../pages/dashboard/Dashboard';
+import ApiTest from '../pages/ApiTest';
 
 const AppRouter = () => {
   return (
@@ -22,23 +24,19 @@ const AppRouter = () => {
           <Route index element={<Home />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
+          <Route path="add-property" element={<AddPropertyPublic />} />
           
-          {/* Private Routes */}
-          <Route path="properties" element={
-            <PrivateRoute>
-              <AllProperties />
-            </PrivateRoute>
-          } />
-          <Route path="properties/:id" element={
-            <PrivateRoute>
-              <PropertyDetails />
-            </PrivateRoute>
-          } />
+          {/* Property Routes */}
+          <Route path="properties" element={<AllProperties />} />
+          <Route path="properties/:id" element={<PropertyDetails />} />
           <Route path="dashboard/*" element={
             <PrivateRoute>
               <Dashboard />
             </PrivateRoute>
           } />
+          
+          {/* API Test Route (for debugging) */}
+          <Route path="api-test" element={<ApiTest />} />
           
           {/* 404 Route */}
           <Route path="*" element={<NotFound />} />

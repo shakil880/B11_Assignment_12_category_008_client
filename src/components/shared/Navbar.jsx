@@ -35,19 +35,24 @@ const Navbar = () => {
                 Home
               </Link>
             </li>
+            <li>
+              <Link to="/properties" className="nav-link">
+                All Properties
+              </Link>
+            </li>
             {user && (
-              <>
-                <li>
-                  <Link to="/properties" className="nav-link">
-                    All Properties
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/dashboard" className="nav-link">
-                    Dashboard
-                  </Link>
-                </li>
-              </>
+              <li>
+                <Link to="/add-property" className="nav-link">
+                  Add Property
+                </Link>
+              </li>
+            )}
+            {user && (
+              <li>
+                <Link to="/dashboard" className="nav-link">
+                  Dashboard
+                </Link>
+              </li>
             )}
           </ul>
 
@@ -104,15 +109,18 @@ const Navbar = () => {
               <Link to="/" className="mobile-nav-link" onClick={() => setIsMenuOpen(false)}>
                 Home
               </Link>
+              <Link to="/properties" className="mobile-nav-link" onClick={() => setIsMenuOpen(false)}>
+                All Properties
+              </Link>
               {user && (
-                <>
-                  <Link to="/properties" className="mobile-nav-link" onClick={() => setIsMenuOpen(false)}>
-                    All Properties
-                  </Link>
-                  <Link to="/dashboard" className="mobile-nav-link" onClick={() => setIsMenuOpen(false)}>
-                    Dashboard
-                  </Link>
-                </>
+                <Link to="/add-property" className="mobile-nav-link" onClick={() => setIsMenuOpen(false)}>
+                  Add Property
+                </Link>
+              )}
+              {user && (
+                <Link to="/dashboard" className="mobile-nav-link" onClick={() => setIsMenuOpen(false)}>
+                  Dashboard
+                </Link>
               )}
               {!user && (
                 <div className="mobile-auth-buttons">

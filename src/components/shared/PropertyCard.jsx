@@ -1,20 +1,6 @@
 import { Link } from 'react-router-dom';
 
 const PropertyCard = ({ property }) => {
-  const formatPrice = (min, max) => {
-    const formatNumber = (num) => {
-      if (num >= 1000000) {
-        return `$${(num / 1000000).toFixed(1)}M`;
-      } else if (num >= 1000) {
-        return `$${(num / 1000).toFixed(0)}K`;
-      }
-      return `$${num.toLocaleString()}`;
-    };
-
-    if (min === max) return formatNumber(min);
-    return `${formatNumber(min)} - ${formatNumber(max)}`;
-  };
-
   const getStatusBadge = (status) => {
     const statusClasses = {
       verified: 'badge-success',
@@ -37,14 +23,21 @@ const PropertyCard = ({ property }) => {
           alt={property.title}
           className="property-card-image"
         />
-        <div className="absolute top-4 right-4">
-          {getStatusBadge(property.verificationStatus)}
-        </div>
+        {property.status && (
+          <div className="absolute top-4 right-4">
+            {getStatusBadge(property.status)}
+          </div>
+        )}
+        {property.advertised && (
+          <div className="absolute top-4 left-4">
+            <span className="badge badge-info">Featured</span>
+          </div>
+        )}
       </div>
       
       <div className="property-card-content">
         <div className="property-price">
-          {formatPrice(property.priceRange.min, property.priceRange.max)}
+          {property.priceRange || 'Price on request'}
         </div>
         
         <h3 className="property-title">{property.title}</h3>
@@ -53,18 +46,27 @@ const PropertyCard = ({ property }) => {
           📍 {property.location}
         </p>
         
+        {property.description && (
+          <p className="text-gray-600 text-sm line-clamp-2 mt-2">
+            {property.description}
+          </p>
+        )}
+        
         <div className="property-meta">
-          <div className="flex items-center gap-2">
+          <div className="profile-section">
             <img 
-              src={property.agent.image || '/default-avatar.png'} 
-              alt={property.agent.name}
-              className="w-8 h-8 rounded-full object-cover"
+              src={property.agentImage || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(property.agentName || 'Agent') + '&background=667eea&color=fff&size=40'} 
+              alt={property.agentName || 'Agent'}
+              className="profile-image"
+              onError={(e) => {
+                e.target.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(property.agentName || 'Agent') + '&background=667eea&color=fff&size=40';
+              }}
             />
-            <span className="property-meta-item">{property.agent.name}</span>
+            <span className="profile-name">{property.agentName || 'Unknown Agent'}</span>
           </div>
         </div>
         
-        <div className="flex flex-col gap-3 mt-6">
+        <div className="card-actions">
           <Link 
             to={`/properties/${property._id}`}
             className="btn btn-primary w-full"

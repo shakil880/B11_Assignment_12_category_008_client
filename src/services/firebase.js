@@ -11,6 +11,24 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
+// Validate Firebase configuration
+const validateFirebaseConfig = () => {
+  const requiredFields = ['apiKey', 'authDomain', 'projectId', 'appId'];
+  const missingFields = requiredFields.filter(field => !firebaseConfig[field]);
+  
+  if (missingFields.length > 0) {
+    console.error('Missing Firebase configuration fields:', missingFields);
+    throw new Error(`Firebase configuration missing: ${missingFields.join(', ')}`);
+  }
+  
+  if (firebaseConfig.apiKey === 'your_firebase_api_key_here' || firebaseConfig.apiKey === 'your_api_key') {
+    throw new Error('Firebase API key is still using placeholder value. Please update your .env file with actual values.');
+  }
+};
+
+// Validate before initializing
+validateFirebaseConfig();
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 

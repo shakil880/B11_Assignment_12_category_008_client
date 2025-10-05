@@ -5,14 +5,50 @@ import api from '../../../services/api';
 const UserProfile = () => {
   const { user } = useAuth();
 
-  const { data: userDetails, isLoading } = useQuery({
-    queryKey: ['user-details', user?.uid],
+  // Temporarily use Firebase user data directly
+  const userDetails = {
+    uid: user?.uid,
+    email: user?.email,
+    name: user?.displayName,
+    photoURL: user?.photoURL,
+    role: 'user',
+    createdAt: new Date().toISOString(),
+    isActive: true,
+  };
+  const isLoading = false;
+
+  // TODO: Re-enable API call once working
+  /*
+  const { data: userDetails, isLoading, error } = useQuery({
+    queryKey: ['user-details', user?.email],
     queryFn: async () => {
-      const response = await api.get(`/users/${user.uid}`);
-      return response.data;
+      try {
+        const response = await api.get(`/users/${user.email}`);
+        return response.data;
+      } catch (error) {
+        // If user doesn't exist in database, create them and return basic data
+        if (error.response?.status === 404) {
+          const userData = {
+            uid: user.uid,
+            email: user.email,
+            name: user.displayName || user.email.split('@')[0],
+            photoURL: user.photoURL,
+            role: 'user',
+          };
+          await api.post('/users', userData);
+          return {
+            ...userData,
+            createdAt: new Date().toISOString(),
+            isActive: true,
+          };
+        }
+        throw error;
+      }
     },
-    enabled: !!user,
+    enabled: !!user?.email,
+    retry: 1,
   });
+  */
 
   if (isLoading) {
     return (
@@ -105,28 +141,52 @@ const UserProfile = () => {
           </div>
 
           <div className="mt-8 pt-6 border-t border-gray-200">
-            <h3 className="text-lg font-semibold mb-4">Account Statistics</h3>
-            <div className="grid grid-cols-3 gap-6">
-              <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">
-                  {userDetails?.stats?.totalProperties || 0}
+            <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
+            <div className="flex flex-wrap gap-4">
+              <a href="/properties" className="btn btn-primary">
+                Browse Properties
+              </a>
+              <a href="/dashboard/wishlist" className="btn btn-outline">
+                View Wishlist
+              </a>
+              <a href="/dashboard/my-reviews" className="btn btn-outline">
+                My Reviews
+              </a>
+              {userDetails?.role === 'agent' && (
+                <a href="/dashboard/add-property" className="btn btn-secondary">
+                  Add Property
+                </a>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <h3 className="text-lg font-semibold mb-4">Account Overview</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="stat-card">
+                <div className="stat-value">
+                  {userDetails?.role === 'user' ? '🏠' : userDetails?.role === 'agent' ? '🏢' : '👑'}
                 </div>
-                <div className="text-sm text-blue-600">
-                  {userDetails?.role === 'agent' ? 'Listed Properties' : 'Wishlist Items'}
+                <div className="stat-label">Account Type</div>
+                <div className="text-sm text-gray-600 mt-1 capitalize">
+                  {userDetails?.role || 'User'}
                 </div>
               </div>
-              <div className="text-center p-4 bg-green-50 rounded-lg">
-                <div className="text-2xl font-bold text-green-600">
-                  {userDetails?.stats?.totalReviews || 0}
+              <div className="stat-card">
+                <div className="stat-value">📅</div>
+                <div className="stat-label">Member Since</div>
+                <div className="text-sm text-gray-600 mt-1">
+                  {userDetails?.createdAt 
+                    ? new Date(userDetails.createdAt).toLocaleDateString()
+                    : 'Recently'
+                  }
                 </div>
-                <div className="text-sm text-green-600">Reviews Given</div>
               </div>
-              <div className="text-center p-4 bg-purple-50 rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">
-                  {userDetails?.stats?.totalTransactions || 0}
-                </div>
-                <div className="text-sm text-purple-600">
-                  {userDetails?.role === 'agent' ? 'Properties Sold' : 'Properties Bought'}
+              <div className="stat-card">
+                <div className="stat-value">✅</div>
+                <div className="stat-label">Status</div>
+                <div className="text-sm text-gray-600 mt-1">
+                  {userDetails?.isActive ? 'Active' : 'Inactive'}
                 </div>
               </div>
             </div>

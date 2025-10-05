@@ -8,9 +8,10 @@ const AllProperties = () => {
   const [sortBy, setSortBy] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [priceFilter, setPriceFilter] = useState({ min: '', max: '' });
+  const [statusFilter, setStatusFilter] = useState('verified');
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['properties', currentPage, searchTerm, sortBy, priceFilter],
+    queryKey: ['properties', currentPage, searchTerm, sortBy, priceFilter, statusFilter],
     queryFn: async () => {
       const params = new URLSearchParams({
         page: currentPage.toString(),
@@ -19,6 +20,7 @@ const AllProperties = () => {
         ...(sortBy && { sort: sortBy }),
         ...(priceFilter.min && { minPrice: priceFilter.min }),
         ...(priceFilter.max && { maxPrice: priceFilter.max }),
+        ...(statusFilter && statusFilter !== '' && { status: statusFilter }),
       });
       
       const response = await api.get(`/properties?${params.toString()}`);
@@ -33,6 +35,11 @@ const AllProperties = () => {
 
   const handlePriceFilter = (e) => {
     e.preventDefault();
+    setCurrentPage(1);
+  };
+
+  const handleStatusFilter = (status) => {
+    setStatusFilter(status);
     setCurrentPage(1);
   };
 
@@ -54,71 +61,99 @@ const AllProperties = () => {
   return (
     <div className="container py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">All Properties</h1>
-        <p className="text-gray-600">Discover verified properties from trusted agents</p>
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">All Properties</h1>
+            <p className="text-gray-600">Discover verified properties from trusted agents</p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <a href="/dashboard/add-property" className="btn btn-primary">➕ Add Property</a>
+          </div>
+        </div>
       </div>
 
       {/* Filters */}
       <div className="filters-container mb-8">
         <div className="filters-grid">
-          {/* Search */}
-          <form onSubmit={handleSearch} className="search-input">
-            <input
-              type="text"
-              className="form-input"
-              placeholder="Search by location..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <svg className="search-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </form>
+          {/* Search - Full width on mobile */}
+          <div className="col-span-full lg:col-span-1">
+            <form onSubmit={handleSearch} className="search-input">
+              <input
+                type="text"
+                className="form-input"
+                placeholder="🔍 Search by location, title..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </form>
+          </div>
 
           {/* Sort */}
           <select
             className="form-select"
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
+            onChange={(e) => {
+              setSortBy(e.target.value);
+              setCurrentPage(1); // Reset to first page when sorting changes
+            }}
           >
-            <option value="">Sort by</option>
+            <option value="">Sort by (Default: Newest)</option>
             <option value="price-asc">Price: Low to High</option>
             <option value="price-desc">Price: High to Low</option>
             <option value="newest">Newest First</option>
             <option value="oldest">Oldest First</option>
           </select>
 
-          {/* Price Range */}
-          <form onSubmit={handlePriceFilter} className="flex gap-2">
-            <input
-              type="number"
-              className="form-input"
-              placeholder="Min Price"
-              value={priceFilter.min}
-              onChange={(e) => setPriceFilter(prev => ({ ...prev, min: e.target.value }))}
-            />
-            <input
-              type="number"
-              className="form-input"
-              placeholder="Max Price"
-              value={priceFilter.max}
-              onChange={(e) => setPriceFilter(prev => ({ ...prev, max: e.target.value }))}
-            />
-            <button type="submit" className="btn btn-primary">Filter</button>
-          </form>
+          {/* Status Filter */}
+          <select
+            className="form-select"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="verified">✅ Verified Properties</option>
+            <option value="pending">⏳ Pending Approval</option>
+            <option value="all">🔍 All Properties</option>
+          </select>
+
+          {/* Price Range - Better mobile layout */}
+          <div className="col-span-full lg:col-span-1">
+            <form onSubmit={handlePriceFilter} className="price-filter-form">
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  className="form-input"
+                  placeholder="Min Price"
+                  value={priceFilter.min}
+                  onChange={(e) => setPriceFilter(prev => ({ ...prev, min: e.target.value }))}
+                />
+                <input
+                  type="number"
+                  className="form-input"
+                  placeholder="Max Price"
+                  value={priceFilter.max}
+                  onChange={(e) => setPriceFilter(prev => ({ ...prev, max: e.target.value }))}
+                />
+              </div>
+              <button type="submit" className="btn btn-primary mt-2 w-full lg:w-auto">
+                Filter
+              </button>
+            </form>
+          </div>
         </div>
       </div>
 
       {/* Results */}
       {isLoading ? (
-        <div className="grid grid-cols-4 gap-6">
-          {[...Array(8)].map((_, index) => (
+        <div className="properties-grid">
+          {[...Array(12)].map((_, index) => (
             <div key={index} className="property-card animate-pulse">
-              <div className="bg-gray-300 h-48 rounded-t-lg"></div>
-              <div className="p-6">
-                <div className="h-4 bg-gray-300 rounded mb-2"></div>
-                <div className="h-3 bg-gray-300 rounded mb-4"></div>
-                <div className="h-8 bg-gray-300 rounded"></div>
+              <div className="bg-gray-300 h-56 rounded-t-lg"></div>
+              <div className="p-5">
+                <div className="h-4 bg-gray-300 rounded mb-3"></div>
+                <div className="h-6 bg-gray-300 rounded mb-2"></div>
+                <div className="h-3 bg-gray-300 rounded mb-4 w-3-4"></div>
+                <div className="h-4 bg-gray-300 rounded mb-4 w-1-2"></div>
+                <div className="h-10 bg-gray-300 rounded"></div>
               </div>
             </div>
           ))}

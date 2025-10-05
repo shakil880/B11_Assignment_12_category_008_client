@@ -40,12 +40,12 @@ const FeaturesSection = () => {
           <p className="text-gray-600">We provide comprehensive real estate solutions</p>
         </div>
 
-        <div className="grid grid-cols-3 gap-8">
+        <div className="features-grid">
           {features.map((feature, index) => (
-            <div key={index} className="text-center p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-all">
-              <div className="text-4xl mb-4">{feature.icon}</div>
-              <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-              <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+            <div key={index} className="feature-card">
+              <div className="feature-icon">{feature.icon}</div>
+              <h3 className="feature-title">{feature.title}</h3>
+              <p className="feature-description">{feature.description}</p>
             </div>
           ))}
         </div>

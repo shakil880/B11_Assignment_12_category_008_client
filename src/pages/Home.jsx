@@ -5,13 +5,16 @@ import PropertyCard from '../components/shared/PropertyCard';
 import Hero from '../components/home/Hero';
 import FeaturesSection from '../components/home/FeaturesSection';
 import TestimonialsSection from '../components/home/TestimonialsSection';
+import { useAuth } from '../contexts/AuthContext';
 
 const Home = () => {
+  const { user } = useAuth();
+
   // Fetch featured properties for advertisement section
   const { data: featuredProperties = [], isLoading: propertiesLoading } = useQuery({
     queryKey: ['featured-properties'],
     queryFn: async () => {
-      const response = await api.get('/properties/featured?limit=4');
+      const response = await api.get('/advertised-properties');
       return response.data;
     },
   });
@@ -134,6 +137,44 @@ const Home = () => {
 
       {/* Testimonials Section */}
       <TestimonialsSection />
+
+      {/* Sell Your Property Section */}
+      <section className="section bg-blue-600 text-white">
+        <div className="container">
+          <div className="text-center max-w-3xl mx-auto">
+            <h2 className="text-3xl font-bold mb-4">Ready to Sell Your Property?</h2>
+            <p className="text-xl mb-8 text-blue-100">
+              {user 
+                ? "List your property with us and reach thousands of potential buyers."
+                : "Sign in to list your property and reach thousands of potential buyers."
+              }
+            </p>
+            <div className="flex justify-center gap-4">
+              {user ? (
+                <Link 
+                  to="/add-property" 
+                  className="btn btn-light px-8 py-3 text-lg font-semibold"
+                >
+                  List Your Property
+                </Link>
+              ) : (
+                <Link 
+                  to="/login" 
+                  className="btn btn-light px-8 py-3 text-lg font-semibold"
+                >
+                  Sign In to List Property
+                </Link>
+              )}
+              <Link 
+                to="/properties" 
+                className="btn btn-outline-light px-8 py-3 text-lg font-semibold"
+              >
+                Browse Properties
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

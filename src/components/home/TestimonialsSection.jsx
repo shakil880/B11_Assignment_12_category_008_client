@@ -28,28 +28,31 @@ const TestimonialsSection = () => {
           <p className="text-gray-600">Hear from our satisfied clients</p>
         </div>
 
-        <div className="grid grid-cols-3 gap-8">
+        <div className="testimonials-grid">
           {testimonials.map((testimonial, index) => (
-            <div key={index} className="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-all">
-              <div className="flex items-center mb-6">
+            <div key={index} className="testimonial-card">
+              <div className="testimonial-header">
                 <img 
-                  src={testimonial.image || '/default-avatar.png'} 
+                  src={testimonial.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(testimonial.name)}&background=667eea&color=fff&size=64`} 
                   alt={testimonial.name}
-                  className="w-16 h-16 rounded-full object-cover mr-4"
+                  className="testimonial-avatar"
+                  onError={(e) => {
+                    e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(testimonial.name)}&background=667eea&color=fff&size=64`;
+                  }}
                 />
-                <div>
-                  <h4 className="font-semibold text-lg">{testimonial.name}</h4>
-                  <p className="text-gray-600">{testimonial.role}</p>
+                <div className="testimonial-info">
+                  <h4 className="testimonial-name">{testimonial.name}</h4>
+                  <p className="testimonial-role">{testimonial.role}</p>
                 </div>
               </div>
-              <p className="text-gray-700 leading-relaxed italic">
+              <p className="testimonial-content">
                 "{testimonial.content}"
               </p>
-              <div className="flex items-center mt-4">
+              <div className="testimonial-rating">
                 {[...Array(5)].map((_, i) => (
                   <svg
                     key={i}
-                    className="w-5 h-5 text-yellow-400"
+                    className="star-icon"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >

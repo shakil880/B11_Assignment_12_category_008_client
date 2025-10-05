@@ -5,6 +5,7 @@ const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
 
+  // Show loading spinner while authentication is being determined
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -14,11 +15,12 @@ const PrivateRoute = ({ children }) => {
     );
   }
 
+  // If not authenticated, redirect to login
   if (!user) {
-    // Redirect to login page with return url
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  // User is authenticated, render the protected component
   return children;
 };
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '../contexts/AuthContext';
@@ -6,8 +6,15 @@ import toast from 'react-hot-toast';
 
 const Register = () => {
   const [loading, setLoading] = useState(false);
-  const { register: registerUser, loginWithGoogle } = useAuth();
+  const { user, register: registerUser, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
+
+  // Redirect authenticated users
+  useEffect(() => {
+    if (user) {
+      navigate('/', { replace: true });
+    }
+  }, [user, navigate]);
 
   const {
     register,
@@ -46,9 +53,12 @@ const Register = () => {
   const handleGoogleRegister = async () => {
     setLoading(true);
     try {
-      await loginWithGoogle();
+      console.log('Starting Google registration...');
+      const user = await loginWithGoogle();
+      console.log('Google registration successful:', user);
       navigate('/');
     } catch (error) {
+      console.error('Google registration failed:', error);
       // Error is already handled by the auth context with toast
     } finally {
       setLoading(false);
