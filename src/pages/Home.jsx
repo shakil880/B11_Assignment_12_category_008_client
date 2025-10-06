@@ -152,10 +152,10 @@ const Home = () => {
             <div className="flex justify-center gap-4">
               {user ? (
                 <Link 
-                  to="/add-property" 
+                  to="/dashboard" 
                   className="btn btn-light px-8 py-3 text-lg font-semibold"
                 >
-                  List Your Property
+                  Go to Dashboard
                 </Link>
               ) : (
                 <Link 

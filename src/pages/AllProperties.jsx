@@ -8,7 +8,7 @@ const AllProperties = () => {
   const [sortBy, setSortBy] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [priceFilter, setPriceFilter] = useState({ min: '', max: '' });
-  const [statusFilter, setStatusFilter] = useState('verified');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['properties', currentPage, searchTerm, sortBy, priceFilter, statusFilter],
@@ -66,9 +66,6 @@ const AllProperties = () => {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">All Properties</h1>
             <p className="text-gray-600">Discover verified properties from trusted agents</p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-2">
-            <a href="/dashboard/add-property" className="btn btn-primary">➕ Add Property</a>
-          </div>
         </div>
       </div>
 
@@ -110,9 +107,9 @@ const AllProperties = () => {
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
+            <option value="all">🔍 All Properties</option>
             <option value="verified">✅ Verified Properties</option>
             <option value="pending">⏳ Pending Approval</option>
-            <option value="all">🔍 All Properties</option>
           </select>
 
           {/* Price Range - Better mobile layout */}

@@ -11,7 +11,13 @@ const UserWishlist = () => {
   const { data: wishlistProperties = [], isLoading, error } = useQuery({
     queryKey: ['wishlist', user?.email],
     queryFn: async () => {
-      const response = await api.get(`/wishlist/${user.email}`);
+      console.log('Fetching wishlist for user:', user.email);
+      
+      const response = await api.get(`/wishlist/${user.email}`, {
+        headers: { 'user-email': user.email }
+      });
+      
+      console.log('User wishlist response:', response.data);
       return response.data;
     },
     enabled: !!user?.email,

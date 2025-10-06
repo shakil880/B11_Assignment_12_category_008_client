@@ -1,138 +1,116 @@
-import { Routes, Route, Navigate, Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { Routes, Route, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import api from '../../services/api';
 
-// Import dashboard components
-import DashboardSidebar from '../../components/dashboard/DashboardSidebar';
-// User components
+// Import actual dashboard components
 import UserProfile from './User/UserProfile';
 import UserWishlist from './User/UserWishlist';
 import UserPropertyBought from './User/UserPropertyBought';
 import UserReviews from './User/UserReviews';
-// Agent components
 import AddProperty from './Agent/AddProperty';
 import MyProperties from './Agent/MyProperties';
 import SoldProperties from './Agent/SoldProperties';
 import RequestedProperties from './Agent/RequestedProperties';
-// Admin components
 import ManageProperties from './Admin/ManageProperties';
 import ManageUsers from './Admin/ManageUsers';
-import DashboardDebug from './DashboardDebug';
 
 const Dashboard = () => {
   const { user } = useAuth();
 
-  console.log('Dashboard component rendered - user:', !!user, user?.email);
-
-  // Fetch user role from backend
-  const { data: userRole = 'user', isLoading, error } = useQuery({
-    queryKey: ['user-role', user?.email],
-    queryFn: async () => {
-      if (!user?.email) return 'user';
-      try {
-        const response = await api.get(`/users/${user.email}`);
-        return response.data.role || 'user';
-      } catch (error) {
-        // If user doesn't exist in database, create them
-        if (error.response?.status === 404) {
-          const userData = {
-            uid: user.uid,
-            email: user.email,
-            name: user.displayName || user.email.split('@')[0],
-            photoURL: user.photoURL,
-            role: 'user',
-          };
-          await api.post('/users', userData);
-          return 'user';
-        }
-        throw error;
-      }
-    },
-    enabled: !!user?.email,
-    retry: 1,
-  });
-
-  console.log('Dashboard state - isLoading:', isLoading, 'error:', !!error, 'userRole:', userRole);
-
-  if (isLoading) {
-    console.log('Dashboard showing loading state');
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="spinner"></div>
-        <span className="ml-3">Loading dashboard...</span>
-      </div>
-    );
-  }
-
-  if (error) {
-    console.log('Dashboard showing error state:', error);
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="text-6xl mb-4">😞</div>
-          <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-            Dashboard Error
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Error: {error?.message || 'Unable to load dashboard'}
-          </p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="btn btn-primary"
-          >
-            Refresh Page
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  console.log('Dashboard rendering main content');
+  const navItems = [
+    { path: '/dashboard/profile', label: 'My Profile', icon: '👤' },
+    { path: '/dashboard/wishlist', label: 'Wishlist', icon: '❤️' },
+    { path: '/dashboard/property-bought', label: 'Property Bought', icon: '🏠' },
+    { path: '/dashboard/my-reviews', label: 'My Reviews', icon: '⭐' },
+    { path: '/dashboard/add-property', label: 'Add Property', icon: '➕' },
+    { path: '/dashboard/my-properties', label: 'My Properties', icon: '🏘️' },
+    { path: '/dashboard/sold-properties', label: 'Sold Properties', icon: '💰' },
+    { path: '/dashboard/requested-properties', label: 'Requested Properties', icon: '📋' },
+    { path: '/dashboard/manage-properties', label: 'Manage Properties', icon: '🏢' },
+    { path: '/dashboard/manage-users', label: 'Manage Users', icon: '👥' },
+    { path: '/dashboard/manage-reviews', label: 'Manage Reviews', icon: '📝' },
+  ];
 
   return (
-    <div className="dashboard-container">
-      <DashboardSidebar userRole={userRole} />
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#f5f5f5' }}>
+      {/* Sidebar */}
+      <div style={{ width: '280px', background: 'white', padding: '20px', borderRight: '1px solid #ddd' }}>
+        <div style={{ marginBottom: '30px' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '5px' }}>Dashboard</h2>
+          <p style={{ fontSize: '14px', color: '#666' }}>Welcome, {user?.displayName || user?.email}</p>
+        </div>
+        
+        <nav>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {navItems.map((item) => (
+              <li key={item.path} style={{ marginBottom: '5px' }}>
+                <Link 
+                  to={item.path} 
+                  style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    padding: '12px 16px', 
+                    textDecoration: 'none', 
+                    borderRadius: '6px',
+                    backgroundColor: window.location.pathname === item.path ? '#3B82F6' : 'transparent',
+                    color: window.location.pathname === item.path ? 'white' : '#374151'
+                  }}
+                >
+                  <span style={{ marginRight: '12px', fontSize: '16px' }}>{item.icon}</span>
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
       
-      <div className="dashboard-content">
-        <Routes>
-          {/* Default route */}
-          <Route path="/" element={<Navigate to="profile" replace />} />
+      {/* Main Content */}
+      <div style={{ flex: 1, padding: '20px', overflow: 'auto' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <Routes>
+          <Route path="/" element={
+            <div style={{ background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+              <h1 style={{ fontSize: '24px', marginBottom: '10px' }}>Welcome to Dashboard</h1>
+              <p>Select an option from the sidebar to get started.</p>
+            </div>
+          } />
           
-          {/* Common routes */}
           <Route path="profile" element={<UserProfile />} />
           
-          {/* User routes */}
-          {userRole === 'user' && (
-            <>
-              <Route path="wishlist" element={<UserWishlist />} />
-              <Route path="property-bought" element={<UserPropertyBought />} />
-              <Route path="my-reviews" element={<UserReviews />} />
-            </>
-          )}
+          <Route path="wishlist" element={<UserWishlist />} />
           
-          {/* Agent routes */}
-          {userRole === 'agent' && (
-            <>
-              <Route path="add-property" element={<AddProperty />} />
-              <Route path="my-properties" element={<MyProperties />} />
-              <Route path="sold-properties" element={<SoldProperties />} />
-              <Route path="requested-properties" element={<RequestedProperties />} />
-            </>
-          )}
+          <Route path="property-bought" element={<UserPropertyBought />} />
           
-          {/* Admin routes */}
-          {userRole === 'admin' && (
-            <>
-              <Route path="manage-properties" element={<ManageProperties />} />
-              <Route path="manage-users" element={<ManageUsers />} />
-              <Route path="manage-reviews" element={<div>Manage Reviews (Coming Soon)</div>} />
-            </>
-          )}
+          <Route path="my-reviews" element={<UserReviews />} />
           
-          {/* Fallback */}
-          <Route path="*" element={<div>Page not found</div>} />
+          <Route path="add-property" element={<AddProperty />} />
+          
+          <Route path="my-properties" element={<MyProperties />} />
+          
+          <Route path="sold-properties" element={<SoldProperties />} />
+          
+          <Route path="requested-properties" element={<RequestedProperties />} />
+          
+          <Route path="manage-properties" element={<ManageProperties />} />
+          
+          <Route path="manage-users" element={<ManageUsers />} />
+          
+          <Route path="manage-reviews" element={
+            <div style={{ background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+              <h1 style={{ fontSize: '24px', marginBottom: '10px' }}>Manage Reviews</h1>
+              <p>Review management will appear here.</p>
+            </div>
+          } />
+          
+          <Route path="*" element={
+            <div style={{ background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+              <h1 style={{ fontSize: '24px', marginBottom: '10px' }}>Page Not Found</h1>
+              <p>The page you're looking for doesn't exist.</p>
+              <Link to="/dashboard" style={{ color: '#3B82F6', textDecoration: 'none' }}>← Back to Dashboard</Link>
+            </div>
+          } />
         </Routes>
+        </div>
       </div>
     </div>
   );

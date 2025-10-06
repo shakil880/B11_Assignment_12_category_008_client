@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import api from '../../../services/api';
 import toast from '../../../utils/toast';
 
 const AddProperty = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -25,9 +27,13 @@ const AddProperty = () => {
       const response = await api.post('/properties', propertyData);
       return response.data;
     },
-    onSuccess: () => {
-      toast.success('Property added successfully! Waiting for admin verification.');
-      queryClient.invalidateQueries(['properties']);
+    onSuccess: (data) => {
+      toast.success('Property added successfully! It will appear in All Properties with "pending" status. Redirecting you there...');
+      // Invalidate all property-related queries to ensure fresh data
+      queryClient.invalidateQueries({ queryKey: ['properties'] });
+      queryClient.invalidateQueries({ queryKey: ['property'] });
+      queryClient.invalidateQueries({ queryKey: ['user-properties'] });
+      
       // Reset form
       setFormData({
         title: '',
@@ -39,9 +45,19 @@ const AddProperty = () => {
         agentImage: user?.photoURL || '',
         agentEmail: user?.email || ''
       });
+      
+      // Redirect to All Properties page after a short delay
+      setTimeout(() => {
+        navigate('/properties');
+      }, 1500);
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to add property');
+      console.error('Add property error:', error);
+      console.error('Error response:', error.response);
+      console.error('Error response data:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      const errorMessage = error.response?.data?.message || error.response?.data?.details || error.message || 'Failed to add property';
+      toast.error(`Error: ${errorMessage}`);
     }
   });
 
@@ -61,14 +77,18 @@ const AddProperty = () => {
         return;
       }
 
-      await addPropertyMutation.mutateAsync({
+      const propertyData = {
         ...formData,
         priceRange: `$${formData.priceRange.min} - $${formData.priceRange.max}`,
         status: 'pending', // Will be verified by admin
         agentEmail: user.email,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      });
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      console.log('Submitting property data:', propertyData);
+      
+      await addPropertyMutation.mutateAsync(propertyData);
     } catch (error) {
       console.error('Error adding property:', error);
     } finally {
@@ -99,8 +119,8 @@ const AddProperty = () => {
         <p className="text-gray-600">List a new property for sale</p>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <form onSubmit={handleSubmit}>
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 max-w-5xl mx-auto">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Property Title */}
             <div className="md:col-span-2">
@@ -135,7 +155,7 @@ const AddProperty = () => {
             </div>
 
             {/* Property Image URL */}
-            <div>
+            <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Property Image URL *
               </label>
@@ -148,6 +168,26 @@ const AddProperty = () => {
                 placeholder="https://example.com/property-image.jpg"
                 required
               />
+              
+              {/* Image Preview */}
+              {formData.image && (
+                <div className="mt-3">
+                  <label className="block text-xs font-medium text-gray-500 mb-2">
+                    Preview
+                  </label>
+                  <div className="max-w-sm">
+                    <img
+                      src={formData.image}
+                      alt="Property preview"
+                      className="rounded-lg border border-gray-300 shadow-sm"
+                      style={{ width: '320px', height: 'auto' }}
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Price Range */}
@@ -224,37 +264,25 @@ const AddProperty = () => {
             </div>
           </div>
 
-          {/* Image Preview */}
-          {formData.image && (
-            <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Image Preview
-              </label>
-              <img
-                src={formData.image}
-                alt="Property preview"
-                className="w-full h-64 object-cover rounded-lg border"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                }}
-              />
-            </div>
-          )}
+
 
           {/* Submit Button */}
-          <div className="mt-8">
+          <div className="flex justify-center md:justify-start pt-6 border-t border-gray-200">
             <button
               type="submit"
               disabled={isLoading || addPropertyMutation.isLoading}
-              className="btn btn-primary w-full md:w-auto px-8 py-3"
+              className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-3 px-8 rounded-lg transition-colors duration-200 flex items-center gap-2"
             >
               {isLoading || addPropertyMutation.isLoading ? (
                 <>
-                  <div className="spinner inline-block mr-2"></div>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   Adding Property...
                 </>
               ) : (
-                'Add Property'
+                <>
+                  <span>➕</span>
+                  Add Property
+                </>
               )}
             </button>
           </div>
@@ -262,14 +290,13 @@ const AddProperty = () => {
       </div>
 
       {/* Info Box */}
-      <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <div className="flex items-start">
-          <div className="text-blue-500 text-xl mr-3">ℹ️</div>
+      <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-5xl mx-auto">
+        <div className="flex items-center gap-3">
+          <div className="text-blue-500 text-lg">ℹ️</div>
           <div>
-            <h3 className="text-blue-800 font-semibold mb-1">Property Verification</h3>
-            <p className="text-blue-700 text-sm">
-              Your property will be reviewed by an admin before being listed publicly. 
-              You'll receive notifications about the status updates.
+            <h3 className="text-blue-800 font-medium text-sm mb-1">Property Verification</h3>
+            <p className="text-blue-700 text-xs">
+              Your property will be reviewed by an admin before being listed publicly. You'll receive notifications about status updates.
             </p>
           </div>
         </div>

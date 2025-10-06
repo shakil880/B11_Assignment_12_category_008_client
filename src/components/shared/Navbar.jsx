@@ -42,13 +42,6 @@ const Navbar = () => {
             </li>
             {user && (
               <li>
-                <Link to="/add-property" className="nav-link">
-                  Add Property
-                </Link>
-              </li>
-            )}
-            {user && (
-              <li>
                 <Link to="/dashboard" className="nav-link">
                   Dashboard
                 </Link>
@@ -112,11 +105,6 @@ const Navbar = () => {
               <Link to="/properties" className="mobile-nav-link" onClick={() => setIsMenuOpen(false)}>
                 All Properties
               </Link>
-              {user && (
-                <Link to="/add-property" className="mobile-nav-link" onClick={() => setIsMenuOpen(false)}>
-                  Add Property
-                </Link>
-              )}
               {user && (
                 <Link to="/dashboard" className="mobile-nav-link" onClick={() => setIsMenuOpen(false)}>
                   Dashboard

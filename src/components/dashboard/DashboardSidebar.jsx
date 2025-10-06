@@ -9,38 +9,36 @@ const DashboardSidebar = ({ userRole }) => {
 
   const getUserRoutes = () => {
     const commonRoutes = [
-      { path: '/dashboard/profile', label: 'My Profile', icon: '👤' }
+      { path: '/dashboard/profile', label: 'My Profile', icon: '👤' },
+      { path: '/dashboard/wishlist', label: 'Wishlist', icon: '❤️' },
+      { path: '/dashboard/property-bought', label: 'Property Bought', icon: '🏠' },
+      { path: '/dashboard/my-reviews', label: 'My Reviews', icon: '⭐' },
     ];
 
-    if (userRole === 'user') {
-      return [
-        ...commonRoutes,
-        { path: '/dashboard/wishlist', label: 'Wishlist', icon: '❤️' },
-        { path: '/dashboard/property-bought', label: 'Property Bought', icon: '🏠' },
-        { path: '/dashboard/my-reviews', label: 'My Reviews', icon: '⭐' },
-      ];
-    }
+    const agentRoutes = [
+      { path: '/dashboard/add-property', label: 'Add Property', icon: '➕' },
+      { path: '/dashboard/my-properties', label: 'My Properties', icon: '🏘️' },
+      { path: '/dashboard/sold-properties', label: 'Sold Properties', icon: '💰' },
+      { path: '/dashboard/requested-properties', label: 'Requested Properties', icon: '📋' },
+    ];
 
-    if (userRole === 'agent') {
-      return [
-        ...commonRoutes,
-        { path: '/dashboard/add-property', label: 'Add Property', icon: '➕' },
-        { path: '/dashboard/my-properties', label: 'My Properties', icon: '🏢' },
-        { path: '/dashboard/sold-properties', label: 'Sold Properties', icon: '💰' },
-        { path: '/dashboard/requested-properties', label: 'Requested Properties', icon: '📋' },
-      ];
-    }
+    const adminRoutes = [
+      { path: '/dashboard/manage-properties', label: 'Manage Properties', icon: '🏢' },
+      { path: '/dashboard/manage-users', label: 'Manage Users', icon: '👥' },
+      { path: '/dashboard/manage-reviews', label: 'Manage Reviews', icon: '📝' },
+    ];
 
+    let routes = [...commonRoutes];
+    
+    if (userRole === 'agent' || userRole === 'admin') {
+      routes = [...routes, ...agentRoutes];
+    }
+    
     if (userRole === 'admin') {
-      return [
-        ...commonRoutes,
-        { path: '/dashboard/manage-properties', label: 'Manage Properties', icon: '🏘️' },
-        { path: '/dashboard/manage-users', label: 'Manage Users', icon: '👥' },
-        { path: '/dashboard/manage-reviews', label: 'Manage Reviews', icon: '📝' },
-      ];
+      routes = [...routes, ...adminRoutes];
     }
-
-    return commonRoutes;
+    
+    return routes;
   };
 
   const routes = getUserRoutes();
@@ -58,7 +56,7 @@ const DashboardSidebar = ({ userRole }) => {
             <li key={route.path}>
               <Link
                 to={route.path}
-                className={`sidebar-nav-link ${isActive(route.path) ? 'active' : ''}`}
+                className={sidebar-nav-link }
               >
                 <span className="mr-3">{route.icon}</span>
                 {route.label}

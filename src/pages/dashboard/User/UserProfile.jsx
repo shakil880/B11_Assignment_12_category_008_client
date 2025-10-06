@@ -6,12 +6,13 @@ const UserProfile = () => {
   const { user } = useAuth();
 
   // Temporarily use Firebase user data directly
+  const demoRole = localStorage.getItem('demo_role') || 'user';
   const userDetails = {
     uid: user?.uid,
     email: user?.email,
     name: user?.displayName,
     photoURL: user?.photoURL,
-    role: 'user',
+    role: demoRole,
     createdAt: new Date().toISOString(),
     isActive: true,
   };
@@ -70,11 +71,19 @@ const UserProfile = () => {
         <div className="card-body">
           <div className="flex items-center gap-6 mb-8">
             <div className="relative">
-              <img
-                src={user?.photoURL || '/default-avatar.png'}
-                alt={user?.displayName || 'User'}
-                className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
-              />
+              {user?.photoURL ? (
+                <img
+                  src={user.photoURL}
+                  alt={user?.displayName || 'User'}
+                  className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
+                />
+              ) : (
+                <div className="w-32 h-32 rounded-full border-4 border-white shadow-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                  <span className="text-white text-3xl font-bold">
+                    {(user?.displayName || user?.email || 'U').charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              )}
             </div>
             <div>
               <h2 className="text-2xl font-semibold text-gray-900">
@@ -111,8 +120,25 @@ const UserProfile = () => {
             <div className="grid grid-cols-2 gap-6">
               <div>
                 <label className="form-label">Account Type</label>
-                <div className="p-3 bg-gray-50 rounded border capitalize">
-                  {userDetails?.role || 'User'}
+                <div className="p-3 bg-gray-50 rounded border capitalize flex items-center justify-between">
+                  <span>{userDetails?.role || 'User'}</span>
+                  {/* Demo Role Switcher - Remove in production */}
+                  <select 
+                    onChange={(e) => {
+                      if (e.target.value && confirm(`Switch to ${e.target.value} role for demo purposes?`)) {
+                        // This is just for demo - in production this would be an API call
+                        localStorage.setItem('demo_role', e.target.value);
+                        window.location.reload();
+                      }
+                    }}
+                    className="text-xs border rounded px-2 py-1 ml-2"
+                    defaultValue=""
+                  >
+                    <option value="">Switch Role</option>
+                    <option value="user">User</option>
+                    <option value="agent">Agent</option>
+                    <option value="admin">Admin</option>
+                  </select>
                 </div>
               </div>
               <div>
@@ -140,6 +166,30 @@ const UserProfile = () => {
             )}
           </div>
 
+          {/* Role Upgrade Section */}
+          {userDetails?.role === 'user' && (
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-blue-900 mb-2">🏢 Become an Agent</h3>
+                <p className="text-blue-700 mb-4">
+                  Upgrade to an agent account to list and manage properties on our platform.
+                </p>
+                <button 
+                  onClick={() => {
+                    // Simple role upgrade - in production this would require admin approval
+                    if (confirm('Do you want to become an agent? This will allow you to list properties.')) {
+                      // For demo purposes, we'll simulate the upgrade
+                      alert('Agent request submitted! For demo purposes, please refresh the page to see agent features.');
+                    }
+                  }}
+                  className="btn btn-primary"
+                >
+                  Request Agent Access
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="mt-8 pt-6 border-t border-gray-200">
             <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
             <div className="flex flex-wrap gap-4">
@@ -153,9 +203,24 @@ const UserProfile = () => {
                 My Reviews
               </a>
               {userDetails?.role === 'agent' && (
-                <a href="/dashboard/add-property" className="btn btn-secondary">
-                  Add Property
-                </a>
+                <>
+                  <a href="/dashboard/add-property" className="btn btn-secondary">
+                    ➕ Add Property
+                  </a>
+                  <a href="/dashboard/my-properties" className="btn btn-outline">
+                    My Properties
+                  </a>
+                </>
+              )}
+              {userDetails?.role === 'admin' && (
+                <>
+                  <a href="/dashboard/manage-properties" className="btn btn-warning">
+                    Manage Properties
+                  </a>
+                  <a href="/dashboard/manage-users" className="btn btn-warning">
+                    Manage Users
+                  </a>
+                </>
               )}
             </div>
           </div>

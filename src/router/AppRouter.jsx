@@ -10,7 +10,6 @@ import Login from '../pages/Login';
 import Register from '../pages/Register';
 import AllProperties from '../pages/AllProperties';
 import PropertyDetails from '../pages/PropertyDetails';
-import AddPropertyPublic from '../pages/AddPropertyPublic';
 import NotFound from '../pages/NotFound';
 import Dashboard from '../pages/dashboard/Dashboard';
 import ApiTest from '../pages/ApiTest';
@@ -24,7 +23,6 @@ const AppRouter = () => {
           <Route index element={<Home />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
-          <Route path="add-property" element={<AddPropertyPublic />} />
           
           {/* Property Routes */}
           <Route path="properties" element={<AllProperties />} />

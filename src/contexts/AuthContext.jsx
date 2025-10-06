@@ -217,13 +217,28 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       try {
+        setUser(user);
+        
         if (user) {
-          // Get fresh token
+          // Get Firebase ID token and store it
           const idToken = await user.getIdToken();
           localStorage.setItem('token', idToken);
-          setUser(user);
+          
+          // Also get JWT token from our server for API calls
+          try {
+            const jwtResponse = await axios.post(`${API_BASE_URL}/jwt`, {
+              uid: user.uid,
+              email: user.email,
+              name: user.displayName || user.email.split('@')[0],
+              photoURL: user.photoURL,
+              role: 'user'
+            });
+            localStorage.setItem('token', jwtResponse.data.token);
+          } catch (error) {
+            console.error('Failed to get server JWT token:', error);
+            // Keep the Firebase token as fallback
+          }
         } else {
-          setUser(null);
           localStorage.removeItem('token');
         }
       } catch (error) {
@@ -250,7 +265,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };
