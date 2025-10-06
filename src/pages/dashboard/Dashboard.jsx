@@ -1,4 +1,5 @@
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../services/api';
@@ -19,6 +20,24 @@ import ManageUsers from './Admin/ManageUsers';
 const Dashboard = () => {
   const { user } = useAuth();
   const location = useLocation();
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  // Close mobile sidebar when route changes
+  useEffect(() => {
+    setIsMobileSidebarOpen(false);
+  }, [location.pathname]);
+
+  // Close mobile sidebar when clicking outside (for mobile)
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isMobileSidebarOpen && !event.target.closest('.dashboard-sidebar') && !event.target.closest('.dashboard-mobile-toggle')) {
+        setIsMobileSidebarOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isMobileSidebarOpen]);
 
   // Fetch user role from server
   const { data: userDetails } = useQuery({
@@ -63,11 +82,34 @@ const Dashboard = () => {
   return (
     <div className="dashboard-layout">
       <div className="container">
+        {/* Mobile Menu Toggle */}
+        <button 
+          className="dashboard-mobile-toggle"
+          onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+          aria-label="Toggle mobile menu"
+        >
+          <span className="hamburger-icon">
+            {isMobileSidebarOpen ? '✕' : '☰'}
+          </span>
+        </button>
+
+        {/* Mobile Overlay */}
+        {isMobileSidebarOpen && <div className="dashboard-mobile-overlay" onClick={() => setIsMobileSidebarOpen(false)}></div>}
+
         <div className="dashboard-container">
           {/* Sidebar */}
-          <div className="dashboard-sidebar">
+          <div className={`dashboard-sidebar ${isMobileSidebarOpen ? 'mobile-open' : ''}`}>
             <div className="dashboard-header">
-              <h2 className="dashboard-title">Dashboard</h2>
+              <div className="dashboard-mobile-header">
+                <h2 className="dashboard-title">Dashboard</h2>
+                <button 
+                  className="dashboard-mobile-close"
+                  onClick={() => setIsMobileSidebarOpen(false)}
+                  aria-label="Close menu"
+                >
+                  ✕
+                </button>
+              </div>
               <p className="dashboard-welcome">Welcome, {user?.displayName || user?.email}</p>
               {userRole && userRole !== 'user' && (
                 <div className={`dashboard-role-badge ${userRole}`}>
