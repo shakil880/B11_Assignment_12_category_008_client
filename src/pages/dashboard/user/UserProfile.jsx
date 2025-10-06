@@ -48,54 +48,54 @@ const UserProfile = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-3">Loading profile...</span>
+      <div className="flex items-center justify-center p-6 sm:p-8">
+        <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-blue-600"></div>
+        <span className="ml-3 text-sm sm:text-base">Loading profile...</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="max-w-2xl">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Profile</h1>
-          <p className="text-red-600">Error loading profile: {error.message}</p>
+      <div className="max-w-2xl w-full mx-auto px-4 sm:px-0">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">My Profile</h1>
+          <p className="text-red-600 text-sm sm:text-base">Error loading profile: {error.message}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">My Profile</h1>
-        <p className="text-gray-600">Manage your personal information</p>
+    <div className="max-w-2xl w-full mx-auto px-4 sm:px-0">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">My Profile</h1>
+        <p className="text-gray-600 text-sm sm:text-base">Manage your personal information</p>
       </div>
 
       <div className="card">
         <div className="card-body">
-          <div className="flex items-center gap-6 mb-8">
+          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 mb-8">
             <div className="relative">
               {user?.photoURL ? (
                 <img
                   src={user.photoURL}
                   alt={user?.displayName || 'User'}
-                  className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
+                  className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-white shadow-lg"
                 />
               ) : (
-                <div className="w-32 h-32 rounded-full border-4 border-white shadow-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                  <span className="text-white text-3xl font-bold">
+                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white shadow-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                  <span className="text-white text-2xl sm:text-3xl font-bold">
                     {(user?.displayName || user?.email || 'U').charAt(0).toUpperCase()}
                   </span>
                 </div>
               )}
             </div>
-            <div>
-              <h2 className="text-2xl font-semibold text-gray-900">
+            <div className="text-center sm:text-left">
+              <h2 className="text-xl sm:text-2xl font-semibold text-gray-900">
                 {user?.displayName || 'No Name'}
               </h2>
-              <p className="text-gray-600">{user?.email}</p>
+              <p className="text-gray-600 text-sm sm:text-base">{user?.email}</p>
               {userDetails?.role && userDetails.role !== 'user' && (
                 <span className={`badge ${
                   userDetails.role === 'admin' ? 'badge-danger' :
@@ -108,7 +108,7 @@ const UserProfile = () => {
           </div>
 
           <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div>
                 <label className="form-label">Full Name</label>
                 <div className="p-3 bg-gray-50 rounded border">
@@ -123,10 +123,10 @@ const UserProfile = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div>
                 <label className="form-label">Account Type</label>
-                <div className="p-3 bg-gray-50 rounded border capitalize flex items-center justify-between">
+                <div className="p-3 bg-gray-50 rounded border capitalize flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <span>{userDetails?.role || 'User'}</span>
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -191,10 +191,10 @@ const UserProfile = () => {
             {userDetails?.role === 'admin' && (
               <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <span className="text-2xl">👑</span>
+                  {/* <span className="text-2xl">👑</span> */}
                   <h3 className="text-lg font-semibold text-purple-900">Administrator Privileges</h3>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-xs sm:text-sm">
                   <div className="flex items-center gap-2">
                     <span className="text-green-500">✅</span>
                     <span>Manage all users</span>
@@ -247,18 +247,18 @@ const UserProfile = () => {
                 <p className="text-green-700 mb-4">
                   You have agent privileges! Manage your property listings and track your performance.
                 </p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-white rounded-lg p-4 border border-green-100">
-                    <div className="text-2xl font-bold text-green-600">{userDetails.propertiesCount || 0}</div>
-                    <div className="text-sm text-green-700">Properties Listed</div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                  <div className="bg-white rounded-lg p-3 sm:p-4 border border-green-100">
+                    <div className="text-xl sm:text-2xl font-bold text-green-600">{userDetails.propertiesCount || 0}</div>
+                    <div className="text-xs sm:text-sm text-green-700">Properties Listed</div>
                   </div>
-                  <div className="bg-white rounded-lg p-4 border border-green-100">
-                    <div className="text-2xl font-bold text-green-600">{userDetails.inquiriesCount || 0}</div>
-                    <div className="text-sm text-green-700">Inquiries Received</div>
+                  <div className="bg-white rounded-lg p-3 sm:p-4 border border-green-100">
+                    <div className="text-xl sm:text-2xl font-bold text-green-600">{userDetails.inquiriesCount || 0}</div>
+                    <div className="text-xs sm:text-sm text-green-700">Inquiries Received</div>
                   </div>
-                  <div className="bg-white rounded-lg p-4 border border-green-100">
-                    <div className="text-2xl font-bold text-green-600">{userDetails.salesCount || 0}</div>
-                    <div className="text-sm text-green-700">Properties Sold</div>
+                  <div className="bg-white rounded-lg p-3 sm:p-4 border border-green-100">
+                    <div className="text-xl sm:text-2xl font-bold text-green-600">{userDetails.salesCount || 0}</div>
+                    <div className="text-xs sm:text-sm text-green-700">Properties Sold</div>
                   </div>
                 </div>
               </div>
