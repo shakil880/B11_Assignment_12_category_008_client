@@ -734,6 +734,17 @@ a:hover {
 .block { display: block; }
 .inline-block { display: inline-block; }
 
+/* Hide dashboard mobile toggle buttons globally */
+.dashboard-mobile-toggle,
+button[class*="dashboard-mobile-toggle"],
+button[aria-label*="Toggle mobile menu"],
+.hamburger-icon {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 /* Mobile Menu Styles */
 .mobile-menu-btn {
   background: none;

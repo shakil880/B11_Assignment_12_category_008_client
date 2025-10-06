@@ -1,5 +1,5 @@
+import React from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
-import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../services/api';
@@ -20,24 +20,21 @@ import ManageUsers from './Admin/ManageUsers';
 const Dashboard = () => {
   const { user } = useAuth();
   const location = useLocation();
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
-  // Close mobile sidebar when route changes
-  useEffect(() => {
-    setIsMobileSidebarOpen(false);
-  }, [location.pathname]);
-
-  // Close mobile sidebar when clicking outside (for mobile)
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (isMobileSidebarOpen && !event.target.closest('.dashboard-sidebar') && !event.target.closest('.dashboard-mobile-toggle')) {
-        setIsMobileSidebarOpen(false);
-      }
+  // Remove any dashboard mobile toggle buttons that might appear
+  React.useEffect(() => {
+    const removeMobileToggle = () => {
+      const toggleButtons = document.querySelectorAll('.dashboard-mobile-toggle, button[class*="dashboard-mobile-toggle"], button[aria-label*="Toggle mobile menu"]');
+      toggleButtons.forEach(button => {
+        button.remove();
+      });
     };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isMobileSidebarOpen]);
+    
+    // Run immediately and also after a small delay to catch dynamically added elements
+    removeMobileToggle();
+    setTimeout(removeMobileToggle, 100);
+    setTimeout(removeMobileToggle, 500);
+  }, [location.pathname]);
 
   // Fetch user role from server
   const { data: userDetails } = useQuery({
@@ -82,34 +79,11 @@ const Dashboard = () => {
   return (
     <div className="dashboard-layout">
       <div className="container">
-        {/* Mobile Menu Toggle */}
-        <button 
-          className="dashboard-mobile-toggle"
-          onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
-          aria-label="Toggle mobile menu"
-        >
-          <span className="hamburger-icon">
-            {isMobileSidebarOpen ? '✕' : '☰'}
-          </span>
-        </button>
-
-        {/* Mobile Overlay */}
-        {isMobileSidebarOpen && <div className="dashboard-mobile-overlay" onClick={() => setIsMobileSidebarOpen(false)}></div>}
-
         <div className="dashboard-container">
           {/* Sidebar */}
-          <div className={`dashboard-sidebar ${isMobileSidebarOpen ? 'mobile-open' : ''}`}>
+          <div className="dashboard-sidebar">
             <div className="dashboard-header">
-              <div className="dashboard-mobile-header">
-                <h2 className="dashboard-title">Dashboard</h2>
-                <button 
-                  className="dashboard-mobile-close"
-                  onClick={() => setIsMobileSidebarOpen(false)}
-                  aria-label="Close menu"
-                >
-                  ✕
-                </button>
-              </div>
+              <h2 className="dashboard-title">Dashboard</h2>
               <p className="dashboard-welcome">Welcome, {user?.displayName || user?.email}</p>
               {userRole && userRole !== 'user' && (
                 <div className={`dashboard-role-badge ${userRole}`}>

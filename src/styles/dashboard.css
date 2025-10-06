@@ -490,6 +490,16 @@
   }
 }
 
+/* Hide any dashboard mobile toggle buttons */
+.dashboard-mobile-toggle,
+button[class*="dashboard-mobile-toggle"],
+button[aria-label*="Toggle mobile menu"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 /* Additional Mobile Enhancements */
 @media (max-width: 480px) {
   /* Fine-tune very small screens */
