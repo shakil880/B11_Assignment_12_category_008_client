@@ -1,8 +1,13 @@
 ## 🚀 Live Demo
 
-- **Live Site**: https://b11a12elite.netlify.app/
-- **Admin Username**: test@test.com
-- **Admin Password**: test1234
+- **Live Site (Frontend)**: https://b11a12elite.netlify.app
+- **Admin Username**: admin@site.com
+- **Admin Password**: admin@site.com
+
+- **Agent Username**: agent@site.com
+- **Agent Password**: agent@site.com
+
+**Backend Site (API)**: https://b11-assignment-12-category-008-serv.vercel.app
 
 
 # Elite Properties - Real Estate Platform
