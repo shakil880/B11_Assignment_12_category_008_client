@@ -106,9 +106,36 @@ const Navbar = () => {
                 All Properties
               </Link>
               {user && (
-                <Link to="/dashboard" className="mobile-nav-link" onClick={() => setIsMenuOpen(false)}>
-                  Dashboard
-                </Link>
+                <>
+                  <Link to="/dashboard" className="mobile-nav-link" onClick={() => setIsMenuOpen(false)}>
+                    Dashboard
+                  </Link>
+                  
+                  {/* User Info Section */}
+                  <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '12px', marginTop: '12px' }}>
+                    <div className="mobile-user-info">
+                      {user.photoURL && (
+                        <img 
+                          src={user.photoURL} 
+                          alt={user.displayName}
+                          className="mobile-user-avatar"
+                        />
+                      )}
+                      <span className="mobile-user-name">
+                        {user.displayName || user.email}
+                      </span>
+                    </div>
+                    <button 
+                      onClick={() => {
+                        handleLogout();
+                        setIsMenuOpen(false);
+                      }}
+                      className="mobile-logout-btn"
+                    >
+                      🚪 Logout
+                    </button>
+                  </div>
+                </>
               )}
               {!user && (
                 <div className="mobile-auth-buttons">

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../../../services/api';
@@ -10,6 +10,23 @@ const AddProperty = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+
+  // Fetch user role to determine messaging
+  const { data: userDetails } = useQuery({
+    queryKey: ['user-details', user?.email],
+    queryFn: async () => {
+      try {
+        const response = await api.get(`/users/${user.email}`, {
+          headers: { 'user-email': user.email }
+        });
+        return response.data;
+      } catch (error) {
+        return { role: 'agent' }; // Default to agent if fetch fails
+      }
+    },
+    enabled: !!user?.email,
+    retry: 1,
+  });
 
   const [formData, setFormData] = useState({
     title: '',
@@ -24,11 +41,18 @@ const AddProperty = () => {
 
   const addPropertyMutation = useMutation({
     mutationFn: async (propertyData) => {
-      const response = await api.post('/properties', propertyData);
+      const response = await api.post('/properties', propertyData, {
+        headers: { 'user-email': user.email }
+      });
       return response.data;
     },
     onSuccess: (data) => {
-      toast.success('Property added successfully! It will appear in All Properties with "pending" status. Redirecting you there...');
+      const isAdmin = userDetails?.role === 'admin';
+      const successMessage = isAdmin 
+        ? 'Property added and automatically verified! It will appear in All Properties immediately. Redirecting you there...'
+        : 'Property added successfully! It will appear in All Properties with "pending" status for admin review. Redirecting you there...';
+      
+      toast.success(successMessage);
       // Invalidate all property-related queries to ensure fresh data
       queryClient.invalidateQueries({ queryKey: ['properties'] });
       queryClient.invalidateQueries({ queryKey: ['property'] });
@@ -66,14 +90,20 @@ const AddProperty = () => {
     setIsLoading(true);
 
     try {
+      console.log('Form submission started');
+      console.log('Current user:', user?.email);
+      console.log('Form data:', formData);
+
       // Validate form
       if (!formData.title || !formData.location || !formData.image || !formData.priceRange.min || !formData.priceRange.max) {
         toast.error('Please fill in all required fields');
+        setIsLoading(false);
         return;
       }
 
       if (parseInt(formData.priceRange.min) >= parseInt(formData.priceRange.max)) {
         toast.error('Maximum price must be greater than minimum price');
+        setIsLoading(false);
         return;
       }
 
@@ -87,10 +117,18 @@ const AddProperty = () => {
       };
       
       console.log('Submitting property data:', propertyData);
+      console.log('Making API call to /properties...');
       
       await addPropertyMutation.mutateAsync(propertyData);
+      console.log('Property added successfully!');
     } catch (error) {
       console.error('Error adding property:', error);
+      console.error('Error details:', {
+        message: error.message,
+        response: error.response,
+        status: error.response?.status,
+        data: error.response?.data
+      });
     } finally {
       setIsLoading(false);
     }
@@ -289,18 +327,32 @@ const AddProperty = () => {
         </form>
       </div>
 
-      {/* Info Box */}
-      <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-5xl mx-auto">
-        <div className="flex items-center gap-3">
-          <div className="text-blue-500 text-lg">ℹ️</div>
-          <div>
-            <h3 className="text-blue-800 font-medium text-sm mb-1">Property Verification</h3>
-            <p className="text-blue-700 text-xs">
-              Your property will be reviewed by an admin before being listed publicly. You'll receive notifications about status updates.
-            </p>
+      {/* Info Box - Different messages for admin vs agent */}
+      {userDetails?.role === 'admin' ? (
+        <div className="mt-6 bg-green-50 border border-green-200 rounded-lg p-4 max-w-5xl mx-auto">
+          <div className="flex items-center gap-3">
+            <div className="text-green-500 text-lg">👑</div>
+            <div>
+              <h3 className="text-green-800 font-medium text-sm mb-1">Admin Privilege</h3>
+              <p className="text-green-700 text-xs">
+                As an admin, your properties are automatically verified and will appear publicly immediately after submission.
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-5xl mx-auto">
+          <div className="flex items-center gap-3">
+            <div className="text-blue-500 text-lg">ℹ️</div>
+            <div>
+              <h3 className="text-blue-800 font-medium text-sm mb-1">Property Verification</h3>
+              <p className="text-blue-700 text-xs">
+                Your property will be reviewed by an admin before being listed publicly. You'll receive notifications about status updates.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

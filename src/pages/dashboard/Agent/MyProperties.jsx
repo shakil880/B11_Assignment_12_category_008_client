@@ -14,7 +14,9 @@ const MyProperties = () => {
   const { data: properties = [], isLoading, error } = useQuery({
     queryKey: ['agent-properties', user?.email],
     queryFn: async () => {
-      const response = await api.get(`/properties/agent/${user.email}`);
+      const response = await api.get(`/properties/agent/${user.email}`, {
+        headers: { 'user-email': user.email }
+      });
       return response.data;
     },
     enabled: !!user?.email,
@@ -23,7 +25,9 @@ const MyProperties = () => {
   // Delete property mutation
   const deletePropertyMutation = useMutation({
     mutationFn: async (propertyId) => {
-      await api.delete(`/properties/${propertyId}`);
+      await api.delete(`/properties/${propertyId}`, {
+        headers: { 'user-email': user.email }
+      });
     },
     onSuccess: () => {
       toast.success('Property deleted successfully');

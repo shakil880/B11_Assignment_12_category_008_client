@@ -1,9 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '../../../contexts/AuthContext';
 import api from '../../../services/api';
 import { useState } from 'react';
 import toast from '../../../utils/toast';
 
 const ManageUsers = () => {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
@@ -12,7 +14,9 @@ const ManageUsers = () => {
   const { data: users = [], isLoading, error } = useQuery({
     queryKey: ['all-users'],
     queryFn: async () => {
-      const response = await api.get('/users');
+      const response = await api.get('/users', {
+        headers: { 'user-email': user.email } // Admin access
+      });
       return response.data;
     },
   });
@@ -28,7 +32,9 @@ const ManageUsers = () => {
   // Make admin mutation
   const makeAdminMutation = useMutation({
     mutationFn: async (userId) => {
-      await api.patch(`/users/admin/${userId}`);
+      await api.patch(`/users/admin/${userId}`, {}, {
+        headers: { 'user-email': user.email }
+      });
     },
     onSuccess: () => {
       toast.success('User promoted to admin');
@@ -42,7 +48,9 @@ const ManageUsers = () => {
   // Make agent mutation
   const makeAgentMutation = useMutation({
     mutationFn: async (userId) => {
-      await api.patch(`/users/agent/${userId}`);
+      await api.patch(`/users/agent/${userId}`, {}, {
+        headers: { 'user-email': user.email }
+      });
     },
     onSuccess: () => {
       toast.success('User promoted to agent');
@@ -56,7 +64,9 @@ const ManageUsers = () => {
   // Mark fraud mutation
   const markFraudMutation = useMutation({
     mutationFn: async (userId) => {
-      await api.patch(`/users/fraud/${userId}`);
+      await api.patch(`/users/fraud/${userId}`, {}, {
+        headers: { 'user-email': user.email }
+      });
     },
     onSuccess: () => {
       toast.success('User marked as fraud');
@@ -70,7 +80,9 @@ const ManageUsers = () => {
   // Delete user mutation
   const deleteUserMutation = useMutation({
     mutationFn: async (userId) => {
-      await api.delete(`/users/${userId}`);
+      await api.delete(`/users/${userId}`, {
+        headers: { 'user-email': user.email }
+      });
     },
     onSuccess: () => {
       toast.success('User deleted successfully');

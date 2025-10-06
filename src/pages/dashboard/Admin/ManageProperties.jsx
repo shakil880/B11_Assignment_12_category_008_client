@@ -1,21 +1,28 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '../../../contexts/AuthContext';
 import api from '../../../services/api';
 import { useState } from 'react';
 import toast from '../../../utils/toast';
 
 const ManageProperties = () => {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState('all'); // all, pending, verified, rejected
   const [searchTerm, setSearchTerm] = useState('');
 
   // Fetch all properties (admin can see all)
-  const { data: allProperties = [], isLoading, error } = useQuery({
+  const { data: propertyData, isLoading, error } = useQuery({
     queryKey: ['admin-properties'],
     queryFn: async () => {
-      const response = await api.get('/properties?admin=true'); // Special admin endpoint
+      const response = await api.get('/properties?admin=true', {
+        headers: { 'user-email': user?.email }
+      });
       return response.data;
     },
+    enabled: !!user?.email,
   });
+
+  const allProperties = propertyData?.properties || [];
 
   // Filter properties based on status and search
   const filteredProperties = allProperties.filter(property => {
@@ -29,7 +36,9 @@ const ManageProperties = () => {
   // Verify property mutation
   const verifyPropertyMutation = useMutation({
     mutationFn: async (propertyId) => {
-      await api.patch(`/properties/verify/${propertyId}`);
+      await api.patch(`/properties/verify/${propertyId}`, {}, {
+        headers: { 'user-email': user?.email }
+      });
     },
     onSuccess: () => {
       toast.success('Property verified successfully');
@@ -43,7 +52,9 @@ const ManageProperties = () => {
   // Reject property mutation
   const rejectPropertyMutation = useMutation({
     mutationFn: async ({ propertyId, reason }) => {
-      await api.patch(`/properties/reject/${propertyId}`, { reason });
+      await api.patch(`/properties/reject/${propertyId}`, { reason }, {
+        headers: { 'user-email': user?.email }
+      });
     },
     onSuccess: () => {
       toast.success('Property rejected');
@@ -182,124 +193,94 @@ const ManageProperties = () => {
 
       {/* Properties List */}
       {filteredProperties.length > 0 ? (
-        <div className="grid grid-cols-1 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredProperties.map((property) => (
-            <div key={property._id} className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div className="md:flex">
-                {/* Property Image */}
-                <div className="md:w-1/4">
-                  <img
-                    src={property.image}
-                    alt={property.title}
-                    className="w-full h-48 md:h-full object-cover"
-                  />
+            <div key={property._id} className="bg-white rounded-lg shadow-md overflow-hidden" style={{ width: '320px', maxWidth: '320px', height: 'auto' }}>
+              {/* Property Image */}
+              <div className="relative">
+                <img
+                  src={property.image}
+                  alt={property.title}
+                  className="w-full h-40 object-cover"
+                  style={{ height: '160px', maxHeight: '160px' }}
+                />
+                {/* Status Badge */}
+                <div className="absolute top-1 right-1">
+                  <span className={`badge badge-xs ${getStatusBadge(property.status)}`}>
+                    {property.status}
+                  </span>
+                  {property.advertised && (
+                    <div className="badge badge-info badge-xs ml-1">★</div>
+                  )}
                 </div>
+              </div>
+              
+              {/* Property Details */}
+              <div className="p-3">
+                <h3 className="text-sm font-semibold text-gray-900 mb-1 line-clamp-1">
+                  {property.title}
+                </h3>
+                <p className="text-gray-600 mb-1 text-xs">📍 {property.location}</p>
+                <p className="text-sm font-semibold text-green-600 mb-2">{property.priceRange}</p>
                 
-                {/* Property Details */}
-                <div className="p-6 md:w-3/4">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                        {property.title}
-                      </h3>
-                      <p className="text-gray-600 mb-1">📍 {property.location}</p>
-                      <p className="text-lg font-semibold text-green-600 mb-1">{property.priceRange}</p>
-                      <p className="text-sm text-gray-500">
-                        Agent: {property.agentName} ({property.agentEmail})
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <span className={`badge ${getStatusBadge(property.status)} mb-2`}>
-                        {property.status}
-                      </span>
-                      {property.advertised && (
-                        <div className="badge badge-info">Featured</div>
-                      )}
-                    </div>
+                {/* Property Meta - Ultra Compact */}
+                <div className="text-xs text-gray-500 mb-2 space-y-1">
+                  <div className="flex justify-between">
+                    <span>Views: {property.views || 0}</span>
+                    <span>Inquiries: {property.inquiries || 0}</span>
                   </div>
-
-                  {property.description && (
-                    <p className="text-gray-600 mb-4 line-clamp-2">
-                      {property.description}
-                    </p>
-                  )}
-
-                  {/* Property Meta */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
-                    <div>
-                      <span className="text-gray-500">Listed:</span>
-                      <p className="font-medium">
-                        {new Date(property.createdAt || Date.now()).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Views:</span>
-                      <p className="font-medium">{property.views || 0}</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Inquiries:</span>
-                      <p className="font-medium">{property.inquiries || 0}</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Agent:</span>
-                      <p className="font-medium">{property.agentName}</p>
-                    </div>
-                  </div>
-
-                  {/* Admin Actions */}
-                  <div className="flex flex-wrap gap-2">
-                    {property.status === 'pending' && (
-                      <>
-                        <button
-                          onClick={() => handleVerify(property._id)}
-                          className="btn btn-success btn-sm"
-                          disabled={verifyPropertyMutation.isLoading}
-                        >
-                          ✅ Verify
-                        </button>
-                        <button
-                          onClick={() => handleReject(property._id)}
-                          className="btn btn-danger btn-sm"
-                          disabled={rejectPropertyMutation.isLoading}
-                        >
-                          ❌ Reject
-                        </button>
-                      </>
-                    )}
-                    
-                    {property.status === 'verified' && !property.advertised && (
-                      <button
-                        onClick={() => handleAdvertise(property._id)}
-                        className="btn btn-info btn-sm"
-                        disabled={advertisePropertyMutation.isLoading}
-                      >
-                        ⭐ Feature
-                      </button>
-                    )}
-                    
-                    <a
-                      href={`/properties/${property._id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn btn-outline btn-sm"
-                    >
-                      👁️ View
-                    </a>
-                    
-                    <button className="btn btn-secondary btn-sm">
-                      📧 Contact Agent
-                    </button>
-                  </div>
-
-                  {/* Rejection Reason */}
-                  {property.status === 'rejected' && property.rejectionReason && (
-                    <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                      <p className="text-red-800 text-sm">
-                        <strong>Rejection Reason:</strong> {property.rejectionReason}
-                      </p>
-                    </div>
-                  )}
+                  <div className="truncate">Agent: {property.agentName}</div>
                 </div>
+
+                {/* Admin Actions - Ultra Compact */}
+                <div className="flex gap-1">
+                  {property.status === 'pending' && (
+                    <>
+                      <button
+                        onClick={() => handleVerify(property._id)}
+                        className="btn btn-success btn-xs px-2 py-1 text-xs flex-1"
+                        disabled={verifyPropertyMutation.isLoading}
+                      >
+                        ✓
+                      </button>
+                      <button
+                        onClick={() => handleReject(property._id)}
+                        className="btn btn-danger btn-xs px-2 py-1 text-xs flex-1"
+                        disabled={rejectPropertyMutation.isLoading}
+                      >
+                        ✗
+                      </button>
+                    </>
+                  )}
+                  
+                  {property.status === 'verified' && !property.advertised && (
+                    <button
+                      onClick={() => handleAdvertise(property._id)}
+                      className="btn btn-info btn-xs px-2 py-1 text-xs flex-1"
+                      disabled={advertisePropertyMutation.isLoading}
+                    >
+                      ★
+                    </button>
+                  )}
+                  
+                  <a
+                    href={`/properties/${property._id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-outline btn-xs px-2 py-1 text-xs flex-1"
+                  >
+                    👁
+                  </a>
+                </div>
+
+                {/* Rejection Reason */}
+                {property.status === 'rejected' && property.rejectionReason && (
+                  <div className="mt-2 p-1 bg-red-50 border border-red-200 rounded text-xs">
+                    <p className="text-red-800 truncate">
+                      <strong>Rejected:</strong> {property.rejectionReason}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           ))}

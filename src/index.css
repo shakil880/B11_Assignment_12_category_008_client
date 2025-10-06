@@ -786,6 +786,55 @@ a:hover {
   margin-top: var(--spacing-4);
 }
 
+/* Mobile User Info Styles */
+.mobile-user-info {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-4);
+  background: var(--gray-50);
+  border-radius: var(--border-radius);
+  margin: var(--spacing-3) 0;
+  border: 1px solid var(--gray-200);
+}
+
+.mobile-user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: var(--spacing-3);
+  border: 2px solid var(--primary-500);
+}
+
+.mobile-user-name {
+  font-weight: 500;
+  color: var(--gray-800);
+  font-size: var(--font-size-sm);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobile-logout-btn {
+  width: 100%;
+  margin-top: var(--spacing-2);
+  padding: var(--spacing-3) var(--spacing-4);
+  background: var(--red-50);
+  color: var(--red-600);
+  border: 1px solid var(--red-200);
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+.mobile-logout-btn:hover {
+  background: var(--red-100);
+  border-color: var(--red-300);
+  color: var(--red-700);
+  transform: translateY(-1px);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .container {
