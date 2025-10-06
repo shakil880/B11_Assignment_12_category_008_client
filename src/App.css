@@ -108,6 +108,8 @@
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: var(--spacing-6);
   margin-bottom: var(--spacing-16);
+  justify-content: center;
+  justify-items: center;
 }
 
 /* Property Card Styles */
@@ -122,6 +124,8 @@
   flex-direction: column;
   height: 100%;
   min-height: 420px;
+  width: 100%;
+  max-width: 400px;
 }
 
 .property-card:hover {
@@ -1051,6 +1055,10 @@
   .properties-grid {
     grid-template-columns: 1fr;
     gap: var(--spacing-4);
+    justify-content: center;
+    justify-items: center;
+    max-width: 400px;
+    margin: 0 auto var(--spacing-16) auto;
   }
   
   .property-card-image {
@@ -1066,18 +1074,24 @@
 @media (min-width: 640px) {
   .properties-grid {
     grid-template-columns: repeat(2, 1fr);
+    max-width: 800px;
+    margin: 0 auto var(--spacing-16) auto;
   }
 }
 
 @media (min-width: 1024px) {
   .properties-grid {
     grid-template-columns: repeat(3, 1fr);
+    max-width: 1200px;
+    margin: 0 auto var(--spacing-16) auto;
   }
 }
 
 @media (min-width: 1280px) {
   .properties-grid {
     grid-template-columns: repeat(4, 1fr);
+    max-width: 1600px;
+    margin: 0 auto var(--spacing-16) auto;
   }
 }
 

@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
 import PropertyCard from '../components/shared/PropertyCard';
+import LoadingSpinner from '../components/shared/LoadingSpinner';
 import Hero from '../components/home/Hero';
 import FeaturesSection from '../components/home/FeaturesSection';
 import TestimonialsSection from '../components/home/TestimonialsSection';
@@ -42,17 +43,24 @@ const Home = () => {
           </div>
 
           {propertiesLoading ? (
-            <div className="grid grid-cols-4 gap-6">
-              {[...Array(4)].map((_, index) => (
-                <div key={index} className="property-card animate-pulse">
-                  <div className="bg-gray-300 h-48 rounded-t-lg"></div>
-                  <div className="p-6">
-                    <div className="h-4 bg-gray-300 rounded mb-2"></div>
-                    <div className="h-3 bg-gray-300 rounded mb-4"></div>
-                    <div className="h-8 bg-gray-300 rounded"></div>
+            <div className="loading-container">
+              <LoadingSpinner 
+                size="medium" 
+                message="Loading Featured Properties..." 
+              />
+              {/* Faded skeleton cards for visual feedback */}
+              <div className="properties-grid mt-8 opacity-30">
+                {[...Array(4)].map((_, index) => (
+                  <div key={index} className="property-card animate-pulse">
+                    <div className="bg-gray-300 h-48 rounded-t-lg"></div>
+                    <div className="p-6">
+                      <div className="h-4 bg-gray-300 rounded mb-2"></div>
+                      <div className="h-3 bg-gray-300 rounded mb-4"></div>
+                      <div className="h-8 bg-gray-300 rounded"></div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           ) : (
             <div className="properties-grid">
@@ -79,21 +87,28 @@ const Home = () => {
           </div>
 
           {reviewsLoading ? (
-            <div className="grid grid-cols-3 gap-6">
-              {[...Array(3)].map((_, index) => (
-                <div key={index} className="review-card animate-pulse">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-12 bg-gray-300 rounded-full"></div>
-                    <div>
-                      <div className="h-4 bg-gray-300 rounded mb-1 w-24"></div>
-                      <div className="h-3 bg-gray-300 rounded w-32"></div>
+            <div className="loading-container">
+              <LoadingSpinner 
+                size="medium" 
+                message="Loading Client Reviews..." 
+              />
+              {/* Faded skeleton cards for visual feedback */}
+              <div className="grid grid-cols-3 gap-6 mt-8 opacity-30">
+                {[...Array(3)].map((_, index) => (
+                  <div key={index} className="review-card animate-pulse">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="w-12 h-12 bg-gray-300 rounded-full"></div>
+                      <div>
+                        <div className="h-4 bg-gray-300 rounded mb-1 w-24"></div>
+                        <div className="h-3 bg-gray-300 rounded w-32"></div>
+                      </div>
                     </div>
+                    <div className="h-3 bg-gray-300 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-300 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-300 rounded w-3/4"></div>
                   </div>
-                  <div className="h-3 bg-gray-300 rounded mb-2"></div>
-                  <div className="h-3 bg-gray-300 rounded mb-2"></div>
-                  <div className="h-3 bg-gray-300 rounded w-3/4"></div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           ) : (
             <div className="grid grid-cols-3 gap-6">

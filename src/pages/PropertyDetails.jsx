@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
+import LoadingSpinner from '../components/shared/LoadingSpinner';
 import toast from '../utils/toast';
 
 const PropertyDetails = () => {
@@ -207,16 +208,23 @@ const PropertyDetails = () => {
   if (isLoading) {
     return (
       <div className="container py-8">
-        <div className="animate-pulse">
-          <div className="bg-gray-300 h-96 rounded-lg mb-8"></div>
-          <div className="grid grid-cols-3 gap-8">
-            <div className="col-span-2">
-              <div className="h-8 bg-gray-300 rounded mb-4"></div>
-              <div className="h-4 bg-gray-300 rounded mb-2"></div>
-              <div className="h-4 bg-gray-300 rounded mb-2"></div>
-              <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+        <div className="loading-container">
+          <LoadingSpinner 
+            size="large" 
+            message="Loading Property Details..." 
+          />
+          {/* Faded skeleton for visual feedback */}
+          <div className="animate-pulse mt-8 opacity-30">
+            <div className="bg-gray-300 h-96 rounded-lg mb-8"></div>
+            <div className="grid grid-cols-3 gap-8">
+              <div className="col-span-2">
+                <div className="h-8 bg-gray-300 rounded mb-4"></div>
+                <div className="h-4 bg-gray-300 rounded mb-2"></div>
+                <div className="h-4 bg-gray-300 rounded mb-2"></div>
+                <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+              </div>
+              <div className="bg-gray-300 h-64 rounded-lg"></div>
             </div>
-            <div className="bg-gray-300 h-64 rounded-lg"></div>
           </div>
         </div>
       </div>

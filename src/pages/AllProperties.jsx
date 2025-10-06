@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import api from '../services/api';
 import PropertyCard from '../components/shared/PropertyCard';
+import LoadingSpinner from '../components/shared/LoadingSpinner';
 
 const AllProperties = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -141,19 +142,34 @@ const AllProperties = () => {
 
       {/* Results */}
       {isLoading ? (
-        <div className="properties-grid">
-          {[...Array(12)].map((_, index) => (
-            <div key={index} className="property-card animate-pulse">
-              <div className="bg-gray-300 h-56 rounded-t-lg"></div>
-              <div className="p-5">
-                <div className="h-4 bg-gray-300 rounded mb-3"></div>
-                <div className="h-6 bg-gray-300 rounded mb-2"></div>
-                <div className="h-3 bg-gray-300 rounded mb-4 w-3-4"></div>
-                <div className="h-4 bg-gray-300 rounded mb-4 w-1-2"></div>
-                <div className="h-10 bg-gray-300 rounded"></div>
+        <div className="loading-container">
+          {/* Main Loading Spinner */}
+          <div className="flex flex-col items-center justify-center py-16">
+            <LoadingSpinner 
+              size="large" 
+              message="Loading Properties..." 
+              className="mb-4"
+            />
+            <p className="text-gray-500 text-center max-w-md">
+              Please wait while we fetch the latest properties for you
+            </p>
+          </div>
+
+          {/* Optional: Skeleton Cards for Better UX */}
+          <div className="properties-grid mt-8 opacity-50">
+            {[...Array(6)].map((_, index) => (
+              <div key={index} className="property-card animate-pulse">
+                <div className="bg-gray-300 h-48 rounded-t-lg"></div>
+                <div className="p-4">
+                  <div className="h-4 bg-gray-300 rounded mb-3"></div>
+                  <div className="h-6 bg-gray-300 rounded mb-2"></div>
+                  <div className="h-3 bg-gray-300 rounded mb-4 w-3/4"></div>
+                  <div className="h-4 bg-gray-300 rounded mb-4 w-1/2"></div>
+                  <div className="h-8 bg-gray-300 rounded"></div>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       ) : (
         <>

@@ -13,7 +13,9 @@ import { auth } from '../services/firebase';
 import api from '../services/api';
 import toast from '../utils/toast';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://b11-assignment-12-category-008-serv.vercel.app';
+console.log('API_BASE_URL in AuthContext:', API_BASE_URL);
+console.log('Environment variables:', import.meta.env);
 
 const AuthContext = createContext();
 
@@ -79,7 +81,12 @@ export const AuthProvider = ({ children }) => {
       
       // Get server JWT token
       try {
-        const userDoc = await axios.get(`${API_BASE_URL}/users/${userCredential.user.email}`);
+        console.log('Fetching user details from:', `${API_BASE_URL}/users/${userCredential.user.email}`);
+        const userDoc = await axios.get(`${API_BASE_URL}/users/${userCredential.user.email}`, {
+          headers: { 'user-email': userCredential.user.email }
+        });
+        console.log('User details fetched successfully:', userDoc.data);
+        
         const jwtResponse = await axios.post(`${API_BASE_URL}/jwt`, {
           uid: userCredential.user.uid,
           email: userCredential.user.email,
@@ -87,18 +94,29 @@ export const AuthProvider = ({ children }) => {
           photoURL: userDoc.data.photoURL || userCredential.user.photoURL,
           role: userDoc.data.role || 'user'
         });
+        console.log('JWT token received successfully');
         localStorage.setItem('token', jwtResponse.data.token);
       } catch (error) {
-        console.error('Failed to get JWT token:', error);
+        console.error('Failed to get JWT token - Full error:', error);
+        console.error('Error response:', error.response?.data);
+        console.error('Error status:', error.response?.status);
+        console.error('API Base URL:', API_BASE_URL);
+        
         // Fallback: create basic JWT token
-        const jwtResponse = await axios.post(`${API_BASE_URL}/jwt`, {
-          uid: userCredential.user.uid,
-          email: userCredential.user.email,
-          name: userCredential.user.displayName,
-          photoURL: userCredential.user.photoURL,
-          role: 'user'
-        });
-        localStorage.setItem('token', jwtResponse.data.token);
+        try {
+          const jwtResponse = await axios.post(`${API_BASE_URL}/jwt`, {
+            uid: userCredential.user.uid,
+            email: userCredential.user.email,
+            name: userCredential.user.displayName,
+            photoURL: userCredential.user.photoURL,
+            role: 'user'
+          });
+          console.log('Fallback JWT token created successfully');
+          localStorage.setItem('token', jwtResponse.data.token);
+        } catch (fallbackError) {
+          console.error('Fallback JWT creation also failed:', fallbackError);
+          throw fallbackError;
+        }
       }
 
       toast.success('Login successful!');
