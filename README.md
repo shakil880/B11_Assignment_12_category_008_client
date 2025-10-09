@@ -1,3 +1,9 @@
+# Elite Properties - Real Estate Platform
+
+A comprehensive real estate platform built with the MERN stack, enabling users to buy, sell, and manage properties with role-based access control.
+
+> 📖 **New to this project?** Check out [ABOUT.md](./ABOUT.md) for a quick overview or [PROJECT_OVERVIEW.md](./PROJECT_OVERVIEW.md) for detailed documentation.
+
 ## 🚀 Live Demo
 
 - **Live Site (Frontend)**: https://b11a12elite.netlify.app
@@ -8,11 +14,6 @@
 - **Agent Password**: agent@site.com
 
 **Backend Site (API)**: https://b11-assignment-12-category-008-serv.vercel.app
-
-
-# Elite Properties - Real Estate Platform
-
-A comprehensive real estate platform built with the MERN stack, enabling users to buy, sell, and manage properties with role-based access control.
 
 ## ✨ Key Features
 
